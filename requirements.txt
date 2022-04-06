@@ -1,0 +1,1 @@
+fastapi_keycloak==1.0.4
