@@ -1,7 +1,5 @@
 # FastAPI Keycloak Integration
 
-[![CodeFactor](https://www.codefactor.io/repository/github/code-specialist/fastapi-keycloak/badge)](https://www.codefactor.io/repository/github/code-specialist/fastapi-keycloak)
-[![codecov](https://codecov.io/gh/code-specialist/fastapi-keycloak/branch/master/graph/badge.svg?token=PX6NJBDUJ9)](https://codecov.io/gh/code-specialist/fastapi-keycloak)
 ---
 
 
@@ -11,7 +9,7 @@ that was signed using Keycloak´s private key.
 
 ## Docs
 
-Docs are available at [https://fastapi-keycloak.code-specialist.com/](https://fastapi-keycloak.code-specialist.com/).
+Docs are available at [https://fastapi-keycloak.lugarsarl.com/](https://fastapi-keycloak.lugarsarl.com/).
 
 ## TLDR
 
