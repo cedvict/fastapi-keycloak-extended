@@ -19,3 +19,5 @@ Adding some features:
  - Update call api GET (for users and groups) with param briefRepresentation as false. This allows to get the full representation of the object.
  - Update create_user and create_group
  - Function to refresh token
+
+This exposes all fastapi_keycloak features under fastapi_keycloak_extended.
