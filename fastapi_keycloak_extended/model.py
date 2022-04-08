@@ -4,18 +4,6 @@ from pydantic import BaseModel
 from fastapi_keycloak import model
 
 
-class KeycloakUser(model.KeycloakUser):
-    """Represents a user object of Keycloak.
-
-    Attributes:
-        groups (List[str]):
-
-    Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
-    details. This is a mere proxy object.
-    """
-    groups: Optional[list[str]]
-
-
 class KeycloakToken(model.KeycloakToken):
     """Keycloak representation of a token object
 

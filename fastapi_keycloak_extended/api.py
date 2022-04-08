@@ -1,9 +1,8 @@
-from typing import Union
+from typing import Any, Union
 
 import requests
 from fastapi_keycloak import api
-from . import KeycloakRefreshToken, KeycloakUser
-from .model import KeycloakGroup
+from fastapi_keycloak_extended.model import KeycloakGroup, KeycloakRefreshToken
 
 
 class FastAPIKeycloak(api.FastAPIKeycloak):
@@ -41,7 +40,7 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
 
     @api.result_or_error(response_model=KeycloakGroup)
     def get_group_by_attribute(
-            self, attribute: str, value: str, search_in_subgroups=True
+            self, attribute: str, value: Any, search_in_subgroups=True
     ) -> list[KeycloakGroup]:
         """Return Group based on attribute
 
@@ -131,7 +130,7 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         else:
             return response
 
-    @api.result_or_error(response_model=KeycloakUser)
+    @api.result_or_error(response_model=api.KeycloakUser)
     def create_user(
             self,
             first_name: str,
@@ -143,8 +142,7 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             initial_roles: list[str] = None,
             send_email_verification: bool = True,
             attributes: dict = None,
-            groups: list[str] = None,
-    ) -> KeycloakUser:
+    ) -> api.KeycloakUser:
         """
 
         Args:
@@ -159,7 +157,6 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
                                             action and the email triggered - if the user was created successfully.
                                             Defaults to `True`
             attributes (dict): The custom fields of new user
-            groups (list[str]): The custom fields of new user
 
         Returns:
             KeycloakUser: If the creation succeeded
@@ -181,8 +178,6 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             ],
             "requiredActions": ["VERIFY_EMAIL" if send_email_verification else None],
         }
-        if groups:
-            data.update(groups=groups)
         if attributes:
             data.update(attributes=attributes)
         response = self._admin_request(
@@ -198,8 +193,8 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             user = self.get_user(user_id=user.id)
         return user
 
-    @api.result_or_error(response_model=KeycloakUser, is_list=True)
-    def get_all_users(self) -> list[KeycloakUser]:
+    @api.result_or_error(response_model=api.KeycloakUser, is_list=True)
+    def get_all_users(self) -> list[api.KeycloakUser]:
         """Returns all users of the realm
 
         Returns:

@@ -2,16 +2,16 @@
 
 __version__ = "0.1.0"
 
-from fastapi_keycloak.api import FastAPIKeycloak
+from fastapi_keycloak_extended.api import FastAPIKeycloak
 from fastapi_keycloak.model import (
     HTTPMethod,
     KeycloakError,
     KeycloakIdentityProvider,
     KeycloakRole,
+    KeycloakUser,
     OIDCUser,
     UsernamePassword)
 from fastapi_keycloak_extended.model import (
-    KeycloakUser,
     KeycloakToken,
     KeycloakGroup,
     KeycloakRefreshToken,

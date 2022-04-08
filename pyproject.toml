@@ -1,15 +1,15 @@
 [project]
 name = "fastapi_keycloak_extended"
 authors = [
-    { name = "Cedric FOWOUE", email = "c.fowoue@lugarsarl.com" }
+    { name = "Cedvict Loknov", email = "cedvict@gmail.com" }
 ]
 maintainers = [
-    { name = "Cedric FOWOUE", email = "c.fowoue@lugarsarl.com" }
+    { name = "Cedvict Loknov", email = "cedvict@gmail.com" }
 ]
 readme = "README.md"
 keywords = ['Keycloak', 'FastAPI', 'Authentication', 'Authorization']
 classifiers = [
-    'Development Status :: 0 - Alpha',
+    'Development Status :: 3 - Alpha',
     'Intended Audience :: Developers',
     'Topic :: Internet :: WWW/HTTP :: Session',
     'Topic :: Internet :: WWW/HTTP :: WSGI',
@@ -27,3 +27,8 @@ dependencies = [
 
 [project.urls]
 Documentation = "https://fastapi-keycloak.lugarsarl.com/"
+
+[build-system]
+requires = ["setuptools>=42"]
+build-backend = "setuptools.build_meta"
+
