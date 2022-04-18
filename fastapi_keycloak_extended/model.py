@@ -5,10 +5,10 @@ from fastapi_keycloak import model
 
 
 class KeycloakUser(model.KeycloakUser):
-    """ Represents a user object of Keycloak.
+    """Represents a user object of Keycloak.
 
     Attributes:
-        groups (List[str]):
+        groups (Optional[list[str]]):
 
     Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
     details. This is a mere proxy object.
@@ -18,10 +18,10 @@ class KeycloakUser(model.KeycloakUser):
 
 
 class OIDCUser(model.OIDCUser):
-    """ Represents a user object of Keycloak, parsed from access token
+    """Represents a user object of Keycloak, parsed from access token
 
     Attributes:
-        groups (Optional[str]):
+        groups (Optional[list[str]]):
 
     Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
     details. This is a mere proxy object.
@@ -80,6 +80,7 @@ class KeycloakGroup(model.KeycloakGroup):
     Attributes:
         attributes (Optional[dict]):
     """
+
     attributes: Optional[dict]
 
 
