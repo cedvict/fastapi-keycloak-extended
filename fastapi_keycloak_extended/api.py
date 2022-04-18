@@ -3,7 +3,13 @@ from typing import Any, Union
 import requests
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_keycloak import api
-from fastapi_keycloak_extended.model import KeycloakGroup, KeycloakRefreshToken, KeycloakToken, OIDCUser, KeycloakUser
+from fastapi_keycloak_extended.model import (
+    KeycloakGroup,
+    KeycloakRefreshToken,
+    KeycloakToken,
+    OIDCUser,
+    KeycloakUser,
+)
 
 
 class FastAPIKeycloak(api.FastAPIKeycloak):
@@ -28,7 +34,7 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
     """
 
     def get_current_user(self, required_roles: list[str] = None) -> OIDCUser:
-        """ Returns the current user based on an access token in the HTTP-header. Optionally verifies roles are possessed
+        """Returns the current user based on an access token in the HTTP-header. Optionally verifies roles are possessed
         by the user
 
         Args:
@@ -44,8 +50,10 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             HTTPException: If any role required is not contained within the roles of the users
         """
 
-        def current_user(token: OAuth2PasswordBearer = api.Depends(self.user_auth_scheme)) -> OIDCUser:
-            """ Decodes and verifies a JWT to get the current user
+        def current_user(
+            token: OAuth2PasswordBearer = api.Depends(self.user_auth_scheme),
+        ) -> OIDCUser:
+            """Decodes and verifies a JWT to get the current user
 
             Args:
                 token OAuth2PasswordBearer: Access token in `Authorization` HTTP-header
@@ -64,14 +72,17 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             if required_roles:
                 for role in required_roles:
                     if role not in user.roles:
-                        raise api.HTTPException(status_code=403, detail=f'Role "{role}" is required to perform this action')
+                        raise api.HTTPException(
+                            status_code=403,
+                            detail=f'Role "{role}" is required to perform this action',
+                        )
             return user
 
         return current_user
 
     @api.result_or_error(response_model=KeycloakToken)
     def user_login(self, username: str, password: str) -> KeycloakToken:
-        """ Models the password OAuth2 flow. Exchanges username and password for an access token. Will raise detailed
+        """Models the password OAuth2 flow. Exchanges username and password for an access token. Will raise detailed
         errors if login fails due to requiredActions
 
         Args:
@@ -94,21 +105,19 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         Notes:
             - To avoid calling this multiple times, you may want to check all requiredActions of the user if it fails due to a (sub)instance of an MandatoryActionException
         """
-        headers = {
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
+        headers = {"Content-Type": "application/x-www-form-urlencoded"}
         data = {
             "client_id": self.client_id,
             "client_secret": self.client_secret,
             "username": username,
             "password": password,
-            "grant_type": "password"
+            "grant_type": "password",
         }
         response = requests.post(url=self.token_uri, headers=headers, data=data)
         if response.status_code == 401:
             raise api.HTTPException(status_code=401, detail="Invalid user credentials")
         if response.status_code == 400:
-            user: KeycloakUser = self.get_user(query=f'username={username}')
+            user: KeycloakUser = self.get_user(query=f"username={username}")
             if len(user.requiredActions) > 0:
                 reason = user.requiredActions[0]
                 exception = {
@@ -120,8 +129,10 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
                 }.get(
                     reason,  # Try to return the matching exception
                     # On custom or unknown actions return a MandatoryActionException by default
-                    api.MandatoryActionException(detail=f"This user can't login until the following action has been "
-                                                    f"resolved: {reason}")
+                    api.MandatoryActionException(
+                        detail=f"This user can't login until the following action has been "
+                        f"resolved: {reason}"
+                    ),
                 )
                 raise exception
         return response
@@ -136,11 +147,14 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         Raises:
             KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
         """
-        return self._admin_request(url=f"{self.groups_uri}?briefRepresentation=false", method=api.HTTPMethod.GET)
+        return self._admin_request(
+            url=f"{self.groups_uri}?briefRepresentation=false",
+            method=api.HTTPMethod.GET,
+        )
 
     @api.result_or_error(response_model=KeycloakGroup)
     def get_group_by_attribute(
-            self, attribute: str, value: Any, search_in_subgroups=True
+        self, attribute: str, value: Any, search_in_subgroups=True
     ) -> list[KeycloakGroup]:
         """Return Group based on attribute
 
@@ -163,7 +177,10 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
                 result.append(group)
             elif search_in_subgroups and group.subGroups:
                 for sub_group in group.subGroups:
-                    if attribute in sub_group.attributes and sub_group.attributes[attribute] == value:
+                    if (
+                        attribute in sub_group.attributes
+                        and sub_group.attributes[attribute] == value
+                    ):
                         result.append(sub_group)
         return result
 
@@ -191,7 +208,10 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
 
     @api.result_or_error(response_model=KeycloakGroup)
     def create_group(
-            self, group_name: str, parent: Union[KeycloakGroup, str] = None, attributes: dict = None,
+        self,
+        group_name: str,
+        parent: Union[KeycloakGroup, str] = None,
+        attributes: dict = None,
     ) -> KeycloakGroup:
         """Create a group on the realm
 
@@ -232,16 +252,16 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
 
     @api.result_or_error(response_model=KeycloakUser)
     def create_user(
-            self,
-            first_name: str,
-            last_name: str,
-            username: str,
-            email: str,
-            password: str,
-            enabled: bool = True,
-            initial_roles: list[str] = None,
-            send_email_verification: bool = True,
-            attributes: dict = None,
+        self,
+        first_name: str,
+        last_name: str,
+        username: str,
+        email: str,
+        password: str,
+        enabled: bool = True,
+        initial_roles: list[str] = None,
+        send_email_verification: bool = True,
+        attributes: dict = None,
     ) -> KeycloakUser:
         """
 
@@ -293,6 +313,58 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             user = self.get_user(user_id=user.id)
         return user
 
+    @api.result_or_error(response_model=KeycloakUser)
+    def get_user(self, user_id: str = None, query: str = "") -> KeycloakUser:
+        """Queries the keycloak API for a specific user either based on its ID or any **native** attribute
+
+        Args:
+            user_id (str): The user ID of interest
+            query: Query string. e.g. `email=testuser@codespecialist.com` or `username=codespecialist`
+
+        Returns:
+            KeycloakUser: If the user was found
+
+        Raises:
+            KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
+        """
+        if user_id is None:
+            response = self._admin_request(
+                url=f"{self.users_uri}?{query}&briefRepresentation=false",
+                method=api.HTTPMethod.GET,
+            )
+            return KeycloakUser(**response.json()[0])
+        else:
+            response = self._admin_request(
+                url=f"{self.users_uri}/{user_id}?briefRepresentation=false",
+                method=api.HTTPMethod.GET,
+            )
+            return response
+
+    @api.result_or_error(response_model=KeycloakUser)
+    def update_user(self, user: KeycloakUser):
+        """Updates a user. Requires the whole object.
+
+        Args:
+            user (KeycloakUser): The (new) user object
+
+        Returns:
+            KeycloakUser: The updated user
+
+        Raises:
+            KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
+
+        Notes: - You may alter any aspect of the user object, also the requiredActions for instance. There is no
+        explicit function for updating those as it is a user update in essence
+        """
+        response = self._admin_request(
+            url=f"{self.users_uri}/{user.id}",
+            data=user.__dict__,
+            method=api.HTTPMethod.PUT,
+        )
+        if response.status_code == 204:  # Update successful
+            return self.get_user(user_id=user.id)
+        return response
+
     @api.result_or_error(response_model=KeycloakUser, is_list=True)
     def get_all_users(self) -> list[KeycloakUser]:
         """Returns all users of the realm
@@ -303,7 +375,9 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         Raises:
             KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
         """
-        return self._admin_request(url=f"{self.users_uri}?briefRepresentation=false", method=api.HTTPMethod.GET)
+        return self._admin_request(
+            url=f"{self.users_uri}?briefRepresentation=false", method=api.HTTPMethod.GET
+        )
 
     @api.result_or_error(response_model=KeycloakRefreshToken)
     def refresh_token(self, refresh_token: str) -> KeycloakRefreshToken:
