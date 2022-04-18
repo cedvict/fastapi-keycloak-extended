@@ -8,12 +8,12 @@ from fastapi_keycloak.model import (
     KeycloakError,
     KeycloakIdentityProvider,
     KeycloakRole,
-    KeycloakUser,
-    OIDCUser,
     UsernamePassword)
 from fastapi_keycloak_extended.model import (
     KeycloakToken,
     KeycloakGroup,
+    OIDCUser,
+    KeycloakUser,
     KeycloakRefreshToken,
 )
 
