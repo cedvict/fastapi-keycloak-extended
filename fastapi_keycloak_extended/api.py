@@ -332,7 +332,7 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
                 url=f"{self.users_uri}?{query}&briefRepresentation=false",
                 method=api.HTTPMethod.GET,
             )
-            return KeycloakUser(**response.json()[0])
+            return response
         else:
             response = self._admin_request(
                 url=f"{self.users_uri}/{user_id}?briefRepresentation=false",
