@@ -332,13 +332,13 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
                 url=f"{self.users_uri}?{query}&briefRepresentation=false",
                 method=api.HTTPMethod.GET,
             )
-            return response
+            return KeycloakUser(**response.json()[0])
         else:
             response = self._admin_request(
                 url=f"{self.users_uri}/{user_id}?briefRepresentation=false",
                 method=api.HTTPMethod.GET,
             )
-            return response
+            return KeycloakUser(**response.json())
 
     @api.result_or_error(response_model=KeycloakUser)
     def update_user(self, user: KeycloakUser):

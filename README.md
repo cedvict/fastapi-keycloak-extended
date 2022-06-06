@@ -22,3 +22,11 @@ Adding some features:
  - Override user_login to take an account more details
 
 This exposes all fastapi_keycloak features under fastapi_keycloak_extended.
+
+## Build and publish
+
+Refer to [https://packaging.python.org/en/latest/tutorials/packaging-projects/](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
+
+Step:
+- python -m build
+- python -m twine upload --repository pypi dist/*

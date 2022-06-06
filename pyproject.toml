@@ -26,7 +26,7 @@ dependencies = [
 ]
 
 [project.urls]
-Documentation = "https://fastapi-keycloak.lugarsarl.com/"
+Documentation = "https://fastapi-keycloak.code-specialist.com/"
 
 [build-system]
 requires = ["setuptools>=42"]

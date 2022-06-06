@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Optional
 
 from pydantic import BaseModel
@@ -22,12 +23,18 @@ class OIDCUser(model.OIDCUser):
 
     Attributes:
         groups (Optional[list[str]]):
+        repository (Optional[str]):
+        workspace: (Optional[str]):
+        admin (Optional[bool]):
 
     Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
     details. This is a mere proxy object.
     """
 
-    groups: list[str]
+    groups: Optional[list[str]]
+    repository: Optional[str]
+    workspace: Optional[str]
+    admin: Optional[bool]
 
 
 class KeycloakToken(model.KeycloakToken):
