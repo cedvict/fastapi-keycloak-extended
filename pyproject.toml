@@ -22,7 +22,7 @@ classifiers = [
 requires-python = ">=3.10"
 dynamic = ["version", "description"]
 dependencies = [
-    "fastapi_keycloak>=1.0.4",
+    "fastapi_keycloak>=1.0.6",
 ]
 
 [project.urls]

@@ -26,6 +26,7 @@ class OIDCUser(model.OIDCUser):
         repository (Optional[str]):
         workspace: (Optional[str]):
         language: (Optional[str]):
+        picture: (Optional[str]):
         admin (Optional[bool]):
 
     Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
@@ -36,6 +37,7 @@ class OIDCUser(model.OIDCUser):
     repository: Optional[str]
     workspace: Optional[str]
     language: Optional[str] = "en"
+    picture: Optional[str]
     admin: Optional[bool]
 
 

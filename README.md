@@ -20,6 +20,7 @@ Adding some features:
  - Update create_user and create_group
  - Function to refresh token
  - Override user_login to take an account more details
+ - Update OIDCUser to add field from attributes
 
 This exposes all fastapi_keycloak features under fastapi_keycloak_extended.
 
