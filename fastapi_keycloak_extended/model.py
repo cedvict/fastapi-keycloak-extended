@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import BaseModel
 from fastapi_keycloak import model
@@ -15,7 +15,7 @@ class KeycloakUser(model.KeycloakUser):
     details. This is a mere proxy object.
     """
 
-    groups: Optional[list[str]]
+    groups: Optional[list[str]] = None
 
 
 class OIDCUser(model.OIDCUser):
@@ -23,22 +23,12 @@ class OIDCUser(model.OIDCUser):
 
     Attributes:
         groups (Optional[list[str]]):
-        repository (Optional[str]):
-        workspace: (Optional[str]):
-        language: (Optional[str]):
-        picture: (Optional[str]):
-        admin (Optional[bool]):
 
     Notes: Check the Keycloak documentation at https://www.keycloak.org/docs-api/15.0/rest-api/index.html for
     details. This is a mere proxy object.
     """
 
     groups: Optional[list[str]]
-    repository: Optional[str]
-    workspace: Optional[str]
-    language: Optional[str] = "en"
-    picture: Optional[str]
-    admin: Optional[bool]
 
 
 class KeycloakToken(model.KeycloakToken):

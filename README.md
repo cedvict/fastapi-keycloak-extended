@@ -24,6 +24,11 @@ Adding some features:
 
 This exposes all fastapi_keycloak features under fastapi_keycloak_extended.
 
+## Keycloak version
+Module tested with version of keycloak:
+- 16.0 (server uri must end with /auth )
+- 22.0
+
 ## Build and publish
 
 Refer to [https://packaging.python.org/en/latest/tutorials/packaging-projects/](https://packaging.python.org/en/latest/tutorials/packaging-projects/)
