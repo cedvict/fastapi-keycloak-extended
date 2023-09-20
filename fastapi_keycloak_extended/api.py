@@ -1,8 +1,12 @@
 from typing import Any, Union
 
 import requests
+from fastapi import status
 from fastapi.security import OAuth2PasswordBearer
 from fastapi_keycloak import api
+from fastapi_keycloak.exceptions import UserNotFound
+
+from fastapi_keycloak_extended.exceptions import InvalidArgumentError
 from fastapi_keycloak_extended.model import (
     KeycloakGroup,
     KeycloakRefreshToken,
@@ -327,17 +331,32 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         Raises:
             KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
         """
+        if user_id is None and (query is None or not query):
+            raise InvalidArgumentError(
+                status_code=400,
+                reason=f"Make sure you have provided convenient arguments (query: {query} and user: {user_id}).",
+            )
         if user_id is None:
             response = self._admin_request(
                 url=f"{self.users_uri}?{query}&briefRepresentation=false",
                 method=api.HTTPMethod.GET,
             )
+            if not response.json():
+                raise UserNotFound(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    reason=f"User query with filters of [{query}] did no match any users"
+                )
             return KeycloakUser(**response.json()[0])
         else:
             response = self._admin_request(
                 url=f"{self.users_uri}/{user_id}?briefRepresentation=false",
                 method=api.HTTPMethod.GET,
             )
+            if response.status_code == status.HTTP_404_NOT_FOUND:
+                raise UserNotFound(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    reason=f"User with user_id[{user_id}] was not found"
+                )
             return KeycloakUser(**response.json())
 
     @api.result_or_error(response_model=KeycloakUser)
