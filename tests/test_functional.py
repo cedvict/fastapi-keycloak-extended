@@ -39,7 +39,7 @@ class TestAPIFunctional(BaseTestClass):
 
     @pytest.fixture()
     def users(self, idp):
-        assert idp.get_all_users() == []  # No users yet
+        assert len(idp.get_all_users()) == 0  # No users yet
 
         # Create some test users
         user_alice = idp.create_user(  # Create User A
@@ -87,19 +87,19 @@ class TestAPIFunctional(BaseTestClass):
         user_alice_roles = idp.get_user_roles(user_id=user_alice.id)
         assert len(user_alice_roles) == 1
         for role in user_alice_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         user_bob_roles = idp.get_user_roles(user_id=user_bob.id)
         assert len(user_bob_roles) == 1
         for role in user_bob_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         # Create a some roles
         all_roles = idp.get_all_roles()
         assert len(all_roles) == 3
         for role in all_roles:
             assert role.name in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
             ]
@@ -109,7 +109,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(all_roles) == 4
         for role in all_roles:
             assert role.name in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
                 test_role_saturn.name,
@@ -120,7 +120,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(all_roles) == 5
         for role in all_roles:
             assert role.name in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
                 test_role_saturn.name,
@@ -134,19 +134,19 @@ class TestAPIFunctional(BaseTestClass):
         user_alice_roles: List[KeycloakRole] = idp.get_user_roles(user_id=user_alice.id)
         assert len(user_alice_roles) == 1
         for role in user_alice_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         user_bob_roles = idp.get_user_roles(user_id=user_bob.id)
         assert len(user_bob_roles) == 1
         for role in user_bob_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         # Assign role to Alice
         idp.add_user_roles(user_id=user_alice.id, roles=[test_role_saturn.name])
         user_alice_roles: List[KeycloakRole] = idp.get_user_roles(user_id=user_alice.id)
         assert len(user_alice_roles) == 2
         for role in user_alice_roles:
-            assert role.name in ["default-roles-test", test_role_saturn.name]
+            assert role.name in ["default-roles-demo-realm", test_role_saturn.name]
 
         # Assign roles to Bob
         idp.add_user_roles(
@@ -156,7 +156,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(user_bob_roles) == 3
         for role in user_bob_roles:
             assert role.name in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 test_role_saturn.name,
                 test_role_mars.name,
             ]
@@ -180,7 +180,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(current_user.roles) == 4  # Also includes all implicit roles
         for role in current_user.roles:
             assert role in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
                 test_role_saturn.name,
@@ -195,7 +195,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(current_user.roles) == 5  # Also includes all implicit roles
         for role in current_user.roles:
             assert role in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
                 test_role_saturn.name,
@@ -238,7 +238,7 @@ class TestAPIFunctional(BaseTestClass):
         assert len(user_bob_roles) == 2
         for role in user_bob_roles:
             assert role.name in [
-                "default-roles-test",
+                "default-roles-demo-realm",
                 "offline_access",
                 "uma_authorization",
                 test_role_saturn.name,
@@ -251,13 +251,13 @@ class TestAPIFunctional(BaseTestClass):
         user_alice_roles: List[KeycloakRole] = idp.get_user_roles(user_id=user_alice.id)
         assert len(user_alice_roles) == 1
         for role in user_alice_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         # Check Bob
         user_bob_roles = idp.get_user_roles(user_id=user_bob.id)
         assert len(user_bob_roles) == 1
         for role in user_bob_roles:
-            assert role.name in ["default-roles-test"]
+            assert role.name in ["default-roles-demo-realm"]
 
         # Clean up
         idp.delete_role(role_name=test_role_mars.name)
@@ -343,6 +343,7 @@ class TestAPIFunctional(BaseTestClass):
         subgroup1: KeycloakGroup = idp.create_group(
             group_name="Subgroup 01", parent=foo_group
         )
+        print(f"Created new subgroup: {subgroup1}")
         assert subgroup1 is not None
         assert subgroup1.name == "Subgroup 01"
         assert subgroup1.path == f"{foo_group.path}/Subgroup 01"
@@ -372,12 +373,14 @@ class TestAPIFunctional(BaseTestClass):
         assert subgroup_l4.path == f"{subgroup_l3.path}/Subgroup l4"
 
         # Find Group by Path
-        foo_group = idp.get_group_by_path(foo_group.path)
+        foo_group = idp.get_group_by_path_with_children(foo_group.path)
+        print(f"Debug group: {foo_group}")
         assert foo_group is not None
         assert len(foo_group.subGroups) == 2
 
         # Find Subgroup by Path
-        subgroup_by_path = idp.get_group_by_path(subgroup2.path)
+        subgroup_by_path = idp.get_group_by_path_with_children(subgroup2.path)
+        print(f"Debug subgroup result: {subgroup_by_path}, subgroup: {subgroup2}")
         assert subgroup_by_path is not None
         assert subgroup_by_path.id == subgroup2.id
 

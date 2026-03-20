@@ -16,13 +16,13 @@ from fastapi_keycloak_extended import (
 
 app = FastAPI()
 idp = FastAPIKeycloak(
-    server_url="http://dev-keycloak.mydomain.test",
-    client_id="test-client",
-    client_secret="M48lQhr3xQs71LWOa4gVRDA3VYlwOyTw",
+    server_url="http://localhost:8080",
+    client_id="demo-client",
+    client_secret="demo-client-secret-123456",
     admin_client_id="admin-cli",
-    admin_client_secret="FOG8Q9iWLiIN6W8sE2v5pwuShKFO21fc",
-    realm="test",
-    callback_uri="http://localhost:8081/callback",
+    admin_client_secret="admin-client-secret-abcdef",
+    realm="demo-realm",
+    callback_uri="http://localhost:3000/callback",
 )
 idp.add_swagger_config(app)
 

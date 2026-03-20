@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import Optional, List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from fastapi_keycloak import model
 
 
@@ -15,6 +15,21 @@ class KeycloakUser(model.KeycloakUser):
     details. This is a mere proxy object.
     """
 
+    id: str
+    createdTimestamp: int
+    username: str
+    enabled: bool
+    totp: bool
+    emailVerified: bool
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    email: Optional[str] = None
+    disableableCredentialTypes: List[str]
+    requiredActions: List[str]
+    realmRoles: Optional[List[str]] = None
+    notBefore: int
+    access: Optional[dict] = None
+    attributes: Optional[dict] = None
     groups: Optional[list[str]] = None
 
 
@@ -28,7 +43,21 @@ class OIDCUser(model.OIDCUser):
     details. This is a mere proxy object.
     """
 
-    groups: Optional[list[str]]
+    sub: str
+    iat: int
+    exp: int
+    email_verified: bool
+    extra_fields: dict = Field(default_factory=dict)
+    azp: Optional[str] = None
+    scope: Optional[str] = None
+    name: Optional[str] = None
+    given_name: Optional[str] = None
+    family_name: Optional[str] = None
+    email: Optional[str] = None
+    preferred_username: Optional[str] = None
+    realm_access: Optional[dict] = None
+    resource_access: Optional[dict] = None
+    groups: Optional[list[str]] = None
 
 
 class KeycloakToken(model.KeycloakToken):
@@ -82,7 +111,13 @@ class KeycloakGroup(model.KeycloakGroup):
         attributes (Optional[dict]):
     """
 
-    attributes: Optional[dict]
+    id: str
+    name: str
+    path: Optional[str] = None
+    realmRoles: Optional[List[str]] = None
+    subGroups: Optional[List["KeycloakGroup"]] = None
+
+    attributes: Optional[dict] = None
 
 
-KeycloakGroup.update_forward_refs()
+KeycloakGroup.model_rebuild()

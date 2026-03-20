@@ -1,0 +1,62 @@
+{
+  "realm": "demo-realm",
+  "enabled": true,
+  "displayName": "Demo Realm",
+  "sslRequired": "NONE",
+  "clients": [
+    {
+      "clientId": "demo-client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "demo-client-secret-123456",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true,
+      "redirectUris": [
+        "http://localhost:3000/*"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ]
+    },
+
+    {
+      "clientId": "admin-cli",
+      "name": "Admin Service Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "admin-client-secret-abcdef",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": true
+    }
+  ],
+
+  "roles": {
+    "realm": [
+      {
+        "name": "user"
+      }
+    ]
+  },
+
+  "users": [
+    {
+      "username": "testuser",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "user"
+      ]
+    }
+  ]
+}

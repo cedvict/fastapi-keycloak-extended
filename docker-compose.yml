@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.5
+    command: start-dev --import-realm
+    container_name: keycloak
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+    volumes:
+      - ./.config/realm-export.json:/opt/keycloak/data/import/realm-export.json

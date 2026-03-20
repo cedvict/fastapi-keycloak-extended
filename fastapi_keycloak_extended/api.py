@@ -1,4 +1,4 @@
-from typing import Any, Union
+from typing import Any, Union, List, Optional
 
 import requests
 from fastapi import status
@@ -116,8 +116,9 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             "username": username,
             "password": password,
             "grant_type": "password",
+            "scope": self.scope,
         }
-        response = requests.post(url=self.token_uri, headers=headers, data=data)
+        response = requests.post(url=self.token_uri, headers=headers, data=data, timeout=self.timeout, verify=self.ssl_verification)
         if response.status_code == 401:
             raise api.HTTPException(status_code=401, detail="Invalid user credentials")
         if response.status_code == 400:
@@ -189,6 +190,34 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         return result
 
     @api.result_or_error(response_model=KeycloakGroup)
+    def get_group_by_path(
+            self, path: str, search_in_subgroups=True
+    ) -> KeycloakGroup or None:
+        """Return Group based on path
+
+        Args:
+            path (str): Path that should be looked up
+            search_in_subgroups (bool): Whether to search in subgroups
+
+        Returns:
+            KeycloakGroup: Full entries stored at Keycloak. Or None if the path not found
+
+        Raises:
+            KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
+        """
+        groups = self.get_all_groups()
+
+        for group in groups:
+            if group.path == path:
+                return group
+
+            elif search_in_subgroups:
+                sub_group = self.get_subgroups(group, path)
+                if sub_group is not None:
+                    return sub_group
+        return None
+
+    @api.result_or_error(response_model=KeycloakGroup)
     def get_group(self, group_id: str) -> KeycloakGroup or None:
         """Return Group based on group id
 
@@ -249,10 +278,12 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         response = self._admin_request(
             url=groups_uri, data=data, method=api.HTTPMethod.POST
         )
+
         if response.status_code == 201:
+            if response.text and response.text.strip():
+                return response
             return self.get_group_by_path(path=path, search_in_subgroups=True)
-        else:
-            return response
+        return response
 
     @api.result_or_error(response_model=KeycloakUser)
     def create_user(
@@ -398,6 +429,24 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
             url=f"{self.users_uri}?briefRepresentation=false", method=api.HTTPMethod.GET
         )
 
+    @api.result_or_error(response_model=KeycloakGroup, is_list=True)
+    def get_user_groups(self, user_id: str) -> List[KeycloakGroup]:
+        """Gets all groups of user
+
+        Args:
+            user_id (str): ID of the user of interest
+
+        Returns:
+            List[KeycloakGroup]: All groups possessed by the user
+
+        Raises:
+            KeycloakError: If the resulting response is not a successful HTTP-Code (>299)
+        """
+        return self._admin_request(
+            url=f"{self.users_uri}/{user_id}/groups?briefRepresentation=false",
+            method=api.HTTPMethod.GET,
+        )
+
     @api.result_or_error(response_model=KeycloakRefreshToken)
     def refresh_token(self, refresh_token: str) -> KeycloakRefreshToken:
         """
@@ -418,3 +467,74 @@ class FastAPIKeycloak(api.FastAPIKeycloak):
         }
         response = requests.post(url=self.token_uri, headers=headers, data=data)
         return response
+
+    def _hydrate_children(self, group: KeycloakGroup) -> KeycloakGroup:
+        children = self.get_group_children(group.id) or []
+
+        hydrated = []
+        for child in children:
+            hydrated.append(self._hydrate_children(child))
+
+        group.subGroups = hydrated
+        return group
+
+    @api.result_or_error(response_model=KeycloakGroup, is_list=True)
+    def get_group_children(self, group_id: str) -> List[KeycloakGroup]:
+        if not group_id:
+            raise api.KeycloakError(reason="group_id is required", status_code=400)
+
+        return self._admin_request(
+            url=f"{self.groups_uri}/{group_id}/children?briefRepresentation=false",
+            method=api.HTTPMethod.GET,
+        )
+
+    @api.result_or_error(response_model=KeycloakGroup)
+    def get_group_with_children(self, group_id: str) -> Optional[KeycloakGroup]:
+        if not group_id:
+            raise api.KeycloakError(reason="group_id is required", status_code=400)
+
+        group = self._admin_request(
+            url=f"{self.groups_uri}/{group_id}?briefRepresentation=false",
+            method=api.HTTPMethod.GET,
+        )
+
+        if not group:
+            return None
+
+        return self._hydrate_children(group)
+
+    @api.result_or_error(response_model=KeycloakGroup, is_list=True)
+    def get_all_groups_with_children(self) -> List[KeycloakGroup]:
+        groups = self.get_all_groups()
+
+        if not groups:
+            return []
+
+        return [self._hydrate_children(group) for group in groups]
+
+    def _find_group_by_path_in_tree(
+            self, group: KeycloakGroup, path: str
+    ) -> Optional[KeycloakGroup]:
+        if group.path == path:
+            return group
+
+        for child in group.subGroups or []:
+            found = self._find_group_by_path_in_tree(child, path)
+            if found is not None:
+                return found
+
+        return None
+
+    @api.result_or_error(response_model=KeycloakGroup)
+    def get_group_by_path_with_children(self, path: str) -> Optional[KeycloakGroup]:
+        if not path:
+            raise api.KeycloakError(reason="path is required", status_code=400)
+
+        groups = self.get_all_groups_with_children()
+
+        for group in groups or []:
+            found = self._find_group_by_path_in_tree(group, path)
+            if found is not None:
+                return found
+
+        return None

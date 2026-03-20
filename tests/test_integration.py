@@ -1,5 +1,6 @@
 from time import sleep
 from typing import List
+from unittest.mock import patch
 
 import httpretty as httpretty
 import pytest as pytest
@@ -67,9 +68,9 @@ class TestAPIIntegration(BaseTestClass):
 
         httpretty.register_uri(httpretty.GET, f"{idp.server_url}/timeout", body=request_callback)
         idp.timeout = 0.5
-
-        with pytest.raises(ReadTimeout):
-            idp.proxy(relative_path="/timeout", method=HTTPMethod.GET)
+        with patch("requests.request", side_effect=ReadTimeout):
+            with pytest.raises(ReadTimeout):
+                idp.proxy(relative_path="/timeout", method=HTTPMethod.GET)
 
     def test_get_all_roles_and_get_roles(self, idp):
         roles: List[KeycloakRole] = idp.get_all_roles()
